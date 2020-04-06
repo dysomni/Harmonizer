@@ -11,6 +11,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 //==============================================================================
@@ -23,9 +24,11 @@ HarmonizerAudioProcessor::HarmonizerAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+    fft(fftOrder)
 #endif
 {
+    startTimerHz(30);
 }
 
 HarmonizerAudioProcessor::~HarmonizerAudioProcessor()
@@ -97,8 +100,13 @@ void HarmonizerAudioProcessor::changeProgramName (int index, const String& newNa
 //==============================================================================
 void HarmonizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    Fs = sampleRate;
+    forFFT.setFs(sampleRate);
+    forFFT.setPitch(24.f);
+    correction.setFs(sampleRate);
+    correction.setShift(0.25f);
+    harmony1.setFs(sampleRate);
+    harmony1.setPitch(4.f);
 }
 
 void HarmonizerAudioProcessor::releaseResources()
@@ -137,12 +145,6 @@ void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
@@ -156,21 +158,42 @@ void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
             cout << "Note Off: " << midiMessage.getNoteNumber() << endl;
         }
     }
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        for (int sampleNumber = 0; sampleNumber < buffer.getNumSamples(); sampleNumber++) {
-            inputSample = buffer.getReadPointer(channel)[sampleNumber];
-            inputSample = (dryWetValue - 1.0f) * -1.0f * inputSample;
-            buffer.getWritePointer(channel)[sampleNumber] = inputSample;
-        }
+    float inputSample; float tunedSample; float harmonySample;
+    for (int sampleNumber = 0; sampleNumber < buffer.getNumSamples(); sampleNumber++) {
+        inputSample = getBothChannels(buffer, buffer.getNumChannels(), sampleNumber);
+        pushNextSampleIntoFFT(inputSample);
+        tunedSample = tuneSample(inputSample);
+        harmonySample = createHarmonies(tunedSample);
+//        inputSample = inputSample + 0.25f * harmonySample;
+        writeBothChannels(buffer, tunedSample, tunedSample, sampleNumber);
     }
+}
+
+float HarmonizerAudioProcessor::getOneChannel(AudioBuffer<float>& buffer, int channel, int n) {
+    return buffer.getReadPointer(channel)[n];
+}
+
+float HarmonizerAudioProcessor::getBothChannels(AudioBuffer<float>& buffer, int numChannels, int n) {
+    float sum = 0.f;
+    for (int i = 0; i < numChannels; i++) {
+        sum = sum + getOneChannel(buffer, i, n);
+    }
+    return sum / numChannels;
+}
+
+void HarmonizerAudioProcessor::writeBothChannels(AudioBuffer<float>& buffer, float s1, float s2, int n) {
+    buffer.getWritePointer(0)[n] = s1;
+    buffer.getWritePointer(1)[n] = s2;
+}
+
+float HarmonizerAudioProcessor::tuneSample(float sample) {
+    return correction.processSample(sample);
+}
+
+float HarmonizerAudioProcessor::createHarmonies(float sample) {
+    // will be based on midi notes passed in
+    
+    return harmony1.processSample(sample);
 }
 
 //==============================================================================
@@ -203,4 +226,52 @@ void HarmonizerAudioProcessor::setStateInformation (const void* data, int sizeIn
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new HarmonizerAudioProcessor();
+}
+
+void HarmonizerAudioProcessor::pushNextSampleIntoFFT (float sample) noexcept
+{
+    // if the fifo contains enough data, set a flag to say
+    // that the next frame should now be rendered..
+    if (fftIndex == fftSize)
+    {
+        if (!nextFFTBlockReady)
+        {
+            zeromem (fftData, sizeof (fftData));
+            memcpy (fftData, fftInput, sizeof (fftInput));
+            nextFFTBlockReady = true;
+        }
+
+        fftIndex = 0;
+    }
+
+    fftInput[fftIndex++] = forFFT.processSample(sample);
+}
+
+void HarmonizerAudioProcessor::timerCallback() {
+    if (nextFFTBlockReady)
+    {
+//        cout << "About to perform FFT" << endl;
+        findPitch();
+        nextFFTBlockReady = false;
+    }
+}
+
+void HarmonizerAudioProcessor::findPitch() {
+    fft.performFrequencyOnlyForwardTransform(fftData);
+//    float pitch = 0.f;
+    int maxInx = distance(fftData, max_element(fftData, fftData + fftSize));
+    float frequency = ((maxInx * Fs)/fftSize)/4.f;
+    cout << frequency << endl;
+    float pitch;
+    if(frequency == 0.f) {
+        pitch = 0.f;
+    } else {
+        pitch = 12 * log2(440.f/frequency);
+    }
+    
+    //get the dominant pitch
+    
+    //find nearest semitone and find the pitch difference
+    
+    correction.setPitch(pitch);
 }
