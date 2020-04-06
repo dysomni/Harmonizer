@@ -4,6 +4,8 @@
               companyName="Dysomni" pluginCharacteristicsValue="pluginWantsMidiIn">
   <MAINGROUP id="r7nrxf" name="Harmonizer">
     <GROUP id="{24B04DFE-74D6-ABD3-4DF8-A9442D02606C}" name="Source">
+      <FILE id="sQq73Z" name="PitchDelay.cpp" compile="1" resource="0" file="Source/PitchDelay.cpp"/>
+      <FILE id="Zeqnht" name="PitchDelay.h" compile="0" resource="0" file="Source/PitchDelay.h"/>
       <FILE id="Z5tYIh" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="czUq5H" name="PluginProcessor.h" compile="0" resource="0"
@@ -34,6 +36,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
@@ -48,6 +51,7 @@
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
