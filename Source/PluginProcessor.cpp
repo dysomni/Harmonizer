@@ -101,12 +101,12 @@ void HarmonizerAudioProcessor::changeProgramName (int index, const String& newNa
 void HarmonizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     Fs = sampleRate;
-    forFFT.setFs(sampleRate);
-    forFFT.setPitch(24.f);
     correction.setFs(sampleRate);
     correction.setShift(0.25f);
-    harmony1.setFs(sampleRate);
-    harmony1.setPitch(4.f);
+    for(int i = 0; i < 5; i++) {
+        harmonies[i].setFs(sampleRate);
+        harmonies[i].setPitch(4.f);
+    }
 }
 
 void HarmonizerAudioProcessor::releaseResources()
@@ -153,9 +153,11 @@ void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     while(midiIterator.getNextEvent(midiMessage, midiSample)) {
         if(midiMessage.isNoteOn()) {
             cout << "Note On:  " << midiMessage.getNoteNumber() << endl;
+            midiScheduler.noteOn(midiMessage.getNoteNumber());
         }
         else if(midiMessage.isNoteOff()) {
             cout << "Note Off: " << midiMessage.getNoteNumber() << endl;
+            midiScheduler.noteOff(midiMessage.getNoteNumber());
         }
     }
     float inputSample; float tunedSample; float harmonySample;
@@ -163,9 +165,9 @@ void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         inputSample = getBothChannels(buffer, buffer.getNumChannels(), sampleNumber);
         pushNextSampleIntoFFT(inputSample);
         tunedSample = tuneSample(inputSample);
-        harmonySample = createHarmonies(tunedSample);
-//        inputSample = inputSample + 0.25f * harmonySample;
-        writeBothChannels(buffer, tunedSample, tunedSample, sampleNumber);
+        harmonySample = createHarmonies(inputSample);
+        inputSample = inputSample + harmonySample;
+        writeBothChannels(buffer, inputSample, inputSample, sampleNumber);
     }
 }
 
@@ -192,8 +194,17 @@ float HarmonizerAudioProcessor::tuneSample(float sample) {
 
 float HarmonizerAudioProcessor::createHarmonies(float sample) {
     // will be based on midi notes passed in
+    float output = 0.f;
+    int count = 0;
+    for(int i = 0; i < 5; i++) {
+        harmonies[i].setPitch(midiScheduler.getHarmonyInfo(i)[0]);
+        if(midiScheduler.getHarmonyInfo(i)[1] == 0) {
+            count++;
+            output += harmonies[i].processSample(sample);
+        }
+    }
     
-    return harmony1.processSample(sample);
+    return output;// / (float)count;
 }
 
 //==============================================================================
@@ -244,7 +255,7 @@ void HarmonizerAudioProcessor::pushNextSampleIntoFFT (float sample) noexcept
         fftIndex = 0;
     }
 
-    fftInput[fftIndex++] = forFFT.processSample(sample);
+    fftInput[fftIndex++] = sample;
 }
 
 void HarmonizerAudioProcessor::timerCallback() {
@@ -260,7 +271,7 @@ void HarmonizerAudioProcessor::findPitch() {
     fft.performFrequencyOnlyForwardTransform(fftData);
 //    float pitch = 0.f;
     int maxInx = distance(fftData, max_element(fftData, fftData + fftSize));
-    float frequency = ((maxInx * Fs)/fftSize)/4.f;
+    float frequency = ((maxInx * Fs)/fftSize);
     cout << frequency << endl;
     float pitch;
     if(frequency == 0.f) {

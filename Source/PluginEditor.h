@@ -31,6 +31,8 @@ public:
     
     void sliderValueChanged(Slider* slider) override;
     
+//    void audioProcessorChanged(AudioProcessor * processor) override;
+    
 //    Listener midiListener;
 
 private:

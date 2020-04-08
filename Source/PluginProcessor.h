@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PitchDelay.h"
+#include "MidiScheduler.hpp"
 
 //==============================================================================
 /**
@@ -79,11 +80,12 @@ public:
 //    ChangeBroadcaster midiBroadcaster;
 
 private:
+    MidiScheduler midiScheduler;
     
     PitchDelay correction;
-    PitchDelay forFFT;
-    PitchDelay harmony1;
+    PitchDelay harmonies[5] = {PitchDelay()};
     dsp::FFT fft;
+    
     float fftInput[fftSize];
     float fftData[2 * fftSize];
     int fftIndex = 0;

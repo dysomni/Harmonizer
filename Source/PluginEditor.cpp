@@ -37,6 +37,8 @@ HarmonizerAudioProcessorEditor::HarmonizerAudioProcessorEditor (HarmonizerAudioP
     attackSlider.setValue(processor.attackValue);
     attackSlider.setTextBoxStyle(Slider::TextBoxRight, false, 70, 30);
     addAndMakeVisible(attackSlider);
+    
+//    processor.addListener(this);
 }
 
 HarmonizerAudioProcessorEditor::~HarmonizerAudioProcessorEditor()
@@ -78,3 +80,7 @@ void HarmonizerAudioProcessorEditor::sliderValueChanged(Slider* slider) {
     }
     
 }
+
+//void HarmonizerAudioProcessorEditor::audioProcessorChanged(AudioProcessor * processor) {
+//
+//}
