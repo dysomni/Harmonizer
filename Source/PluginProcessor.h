@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PitchDelay.h"
-#include "MidiScheduler.hpp"
+#include "MidiScheduler.h"
 
 //==============================================================================
 /**

@@ -88,4 +88,4 @@ private:
     
 };
 
-#endif /* MidiScheduler_hpp */
+#endif /* MidiScheduler_h */
