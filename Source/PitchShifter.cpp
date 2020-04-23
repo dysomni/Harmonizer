@@ -16,40 +16,20 @@ PitchShifter::~PitchShifter(){
 }
 
 
-float PitchShifter::processSample(float x, int channel){
+float PitchShifter::processSample(float x){
     
     
-    float x1 = pitchDelay1.processSample(x, channel,a1[channel]);
-    float x2 = pitchDelay2.processSample(x, channel,a2[channel]);
-    float x3 = pitchDelay3.processSample(x, channel,a3[channel]);
+    float x1 = pitchDelay1.processSample(x, a1);
+    float x2 = pitchDelay2.processSample(x, a2);
+    float x3 = pitchDelay3.processSample(x, a3);
     
-    float g1 = 0.5f * sin(a1[channel]) + 0.5f;
-    float g2 = 0.5f * sin(a2[channel]) + 0.5f;
-    float g3 = 0.5f * sin(a3[channel]) + 0.5f;
+    float g1 = calcGain(a1);
+    float g2 = calcGain(a2);
+    float g3 = calcGain(a3);
     
-    a1[channel] += angleChange;
-    if (a1[channel] > 2.f*M_PI){
-        a1[channel] -= 2.f*M_PI;
-    }
-    else if(a1[channel] < 0.f){
-        a1[channel] += 2.f*M_PI;
-    }
-    
-    a2[channel] += angleChange;
-    if (a2[channel] > 2.f*M_PI){
-        a2[channel] -= 2.f*M_PI;
-    }
-    else if(a2[channel] < 0.f){
-        a2[channel] += 2.f*M_PI;
-    }
-    
-    a3[channel] += angleChange;
-    if (a3[channel] > 2.f*M_PI){
-        a3[channel] -= 2.f*M_PI;
-    }
-    else if(a3[channel] < 0.f){
-        a3[channel] += 2.f*M_PI;
-    }
+    validateAngleBounds(a1);
+    validateAngleBounds(a2);
+    validateAngleBounds(a3);
     
     return (g1*x1 + g2*x2 + g3*x3) * (2.f/3.f);
 }
@@ -60,23 +40,38 @@ void PitchShifter::setFs(float Fs){
     pitchDelay2.setFs(Fs);
     pitchDelay3.setFs(Fs);
     
-    float period = (MAX_DELAY_SAMPLES-1.f) / (delta*Fs);
-    freq = 1.f/period;
-    angleChange = freq * (2.f*M_PI) / Fs;
+    calcAngleChange();
 }
 
 
 void PitchShifter::setPitch(float semitone){
     this->semitone = semitone;
-    tr = powf(2.f,semitone/12.f);
-    delta = 1.f - tr;
     
-    float period = (MAX_DELAY_SAMPLES-1.f) / (delta*Fs);
-    freq = 1.f/period;
-    
-    angleChange = freq * (2.f*M_PI) / Fs;
+    calcDelta();
+    calcAngleChange();
     
     pitchDelay1.setPitch(semitone);
     pitchDelay2.setPitch(semitone);
     pitchDelay3.setPitch(semitone);
+}
+
+void PitchShifter::calcDelta() {
+    tr = powf(2.f,semitone/12.f);
+    delta = 1.f - tr;
+}
+
+void PitchShifter::calcAngleChange() {
+    freq = 1.f/ ((MAX_DELAY_SAMPLES-1.f) / (delta*Fs));
+    angleChange = freq * M2_PI / Fs;
+}
+
+float PitchShifter::calcGain(float angle) {
+    return 0.5f * sin(a3) + 0.5f;
+}
+
+void PitchShifter::validateAngleBounds(float& angle) {
+    angle += angleChange;
+    
+    if      (angle > M2_PI) { angle -= M2_PI; }
+    else if (angle < 0.f)   { angle += M2_PI; }
 }

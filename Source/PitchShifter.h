@@ -23,7 +23,7 @@ public:
     // Destructor
     ~PitchShifter();
     
-    float processSample(float x,int channel);
+    float processSample(float x);
 
     void setFs(float Fs);
     
@@ -32,17 +32,18 @@ public:
     
 private:
     
+    const float M2_PI = 2.f/M_PI;
+    
     float Fs = 48000.f;
     
     PitchDelay pitchDelay1{1};
     PitchDelay pitchDelay2{2};
     PitchDelay pitchDelay3{3};
 
-    float a1[2] = {1.5f*M_PI,1.5f*M_PI};
-    float a2[2] = {(1.5f*M_PI) + 2.f*M_PI/3.f ,
-                    (1.5f*M_PI) + 2.f*M_PI/3.f};
-    float a3[2] = {(1.5f*M_PI) + 4.f*M_PI/3.f ,
-                     (1.5f*M_PI) + 4.f*M_PI/3.f};
+    float a1 = (1.5f*M_PI);
+    float a2 = (1.5f*M_PI) + (M2_PI/3.f);
+    float a3 = (1.5f*M_PI) + (2.f*M2_PI/3.f);
+    
     float angleChange;
     float freq;
     
@@ -53,6 +54,10 @@ private:
     float tr = 1.f; // momentary trasposition
     float delta = 0.f; // rate of change for delay (samples)
     
+    void  calcDelta();
+    void  calcAngleChange();
+    float calcGain(float angle);
+    void  validateAngleBounds(float& angle);
 };
 
 
