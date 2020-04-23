@@ -4,6 +4,12 @@
               companyName="Dysomni" pluginCharacteristicsValue="pluginWantsMidiIn">
   <MAINGROUP id="r7nrxf" name="Harmonizer">
     <GROUP id="{24B04DFE-74D6-ABD3-4DF8-A9442D02606C}" name="Source">
+      <FILE id="dFS105" name="MidiScheduler.cpp" compile="1" resource="0"
+            file="Source/MidiScheduler.cpp"/>
+      <FILE id="syOr9A" name="MidiScheduler.h" compile="0" resource="0" file="Source/MidiScheduler.h"/>
+      <FILE id="FALgUP" name="PitchShifter.cpp" compile="1" resource="0"
+            file="Source/PitchShifter.cpp"/>
+      <FILE id="JtKFAX" name="PitchShifter.h" compile="0" resource="0" file="Source/PitchShifter.h"/>
       <FILE id="sQq73Z" name="PitchDelay.cpp" compile="1" resource="0" file="Source/PitchDelay.cpp"/>
       <FILE id="Zeqnht" name="PitchDelay.h" compile="0" resource="0" file="Source/PitchDelay.h"/>
       <FILE id="Z5tYIh" name="PluginProcessor.cpp" compile="1" resource="0"
