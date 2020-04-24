@@ -16,23 +16,16 @@ using namespace std;
 class PitchShifter {
     
 public:
-    
-    // Constructor function (special function - no return type, name = Class name)
     PitchShifter();
-    
-    // Destructor
     ~PitchShifter();
     
     float processSample(float x);
-
     void setFs(float Fs);
-    
     void setPitch(float semitone);
 
-    
 private:
     
-    const float M2_PI = 2.f/M_PI;
+    const float M2_PI = 2.f * M_PI;
     
     float Fs = 48000.f;
     
@@ -47,7 +40,7 @@ private:
     float angleChange;
     float freq;
     
-    const float MAX_DELAY_SEC = .03f;
+    const float MAX_DELAY_SEC = .1f;
     float MAX_DELAY_SAMPLES = MAX_DELAY_SEC * Fs;
     
     float semitone = 0.f;
@@ -56,7 +49,7 @@ private:
     
     void  calcDelta();
     void  calcAngleChange();
-    float calcGain(float angle);
+    float calcGain(float& angle);
     void  validateAngleBounds(float& angle);
 };
 

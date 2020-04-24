@@ -24,11 +24,13 @@ HarmonizerAudioProcessor::HarmonizerAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       ),
-    fft(fftOrder)
+                       )
+//,
+//    fft(fftOrder)
 #endif
 {
-    startTimerHz(30);
+//    yin.setSampleRate(Fs);
+//    startTimerHz(30);
 }
 
 HarmonizerAudioProcessor::~HarmonizerAudioProcessor()
@@ -101,11 +103,14 @@ void HarmonizerAudioProcessor::changeProgramName (int index, const String& newNa
 void HarmonizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     Fs = sampleRate;
-    correction.setFs(sampleRate);
-    correction.setShift(0.25f);
+//    correction.setFs(sampleRate);
+//    twoOctaves.setFs(sampleRate);
+//    twoOctaves.setPitch(24.f);
+//    yin.setSampleRate((unsigned int) sampleRate);
+//    correction.setShift(0.25f);
     for(int i = 0; i < 5; i++) {
         harmonies[i].setFs(sampleRate);
-        harmonies[i].setPitch(4.f);
+        harmonies[i].setPitch(0.f);
     }
 }
 
@@ -148,25 +153,38 @@ void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    processMidi(midiMessages);
+    processAudio(buffer);
+
+}
+
+void HarmonizerAudioProcessor::processMidi(MidiBuffer& midiMessages) {
     MidiMessage midiMessage; int midiSample;
+    
     MidiBuffer::Iterator midiIterator = MidiBuffer::Iterator(midiMessages);
     while(midiIterator.getNextEvent(midiMessage, midiSample)) {
-        if(midiMessage.isNoteOn()) {
-            cout << "Note On:  " << midiMessage.getNoteNumber() << endl;
-            midiScheduler.noteOn(midiMessage.getNoteNumber());
-        }
-        else if(midiMessage.isNoteOff()) {
-            cout << "Note Off: " << midiMessage.getNoteNumber() << endl;
-            midiScheduler.noteOff(midiMessage.getNoteNumber());
-        }
+        if      (midiMessage.isNoteOn())  midiScheduler.noteOn(midiMessage.getNoteNumber());
+        else if (midiMessage.isNoteOff()) midiScheduler.noteOff(midiMessage.getNoteNumber());
     }
-    float inputSample; float tunedSample; float harmonySample;
+}
+
+void HarmonizerAudioProcessor::processAudio(AudioBuffer<float>& buffer) {
+    
+    
+    float inputSample; //float tunedSample;
     for (int sampleNumber = 0; sampleNumber < buffer.getNumSamples(); sampleNumber++) {
         inputSample = getBothChannels(buffer, buffer.getNumChannels(), sampleNumber);
-        pushNextSampleIntoFFT(inputSample);
-        tunedSample = tuneSample(inputSample);
-        harmonySample = createHarmonies(inputSample);
-        inputSample = inputSample + harmonySample;
+//        pushNextSampleIntoFFT(inputSample);
+//        pushNextSampleIntoYin(inputSample);
+//        tunedSample = tuneSample(inputSample);
+        
+//        if (wantTuned) {
+//            inputSample = ((1.f - dryWetValue) * tunedSample) + (dryWetValue * createHarmonies(tunedSample));
+//        }
+//        else {
+//            inputSample = ((1.f - dryWetValue) * inputSample) + (dryWetValue * createHarmonies(tunedSample));
+//        }
+        inputSample = ((1.f - dryWetValue) * inputSample) + (dryWetValue * createHarmonies(inputSample));
         writeBothChannels(buffer, inputSample, inputSample, sampleNumber);
     }
 }
@@ -188,9 +206,9 @@ void HarmonizerAudioProcessor::writeBothChannels(AudioBuffer<float>& buffer, flo
     buffer.getWritePointer(1)[n] = s2;
 }
 
-float HarmonizerAudioProcessor::tuneSample(float sample) {
-    return correction.processSample(sample);
-}
+//float HarmonizerAudioProcessor::tuneSample(float sample) {
+//    return correction.processSample(sample);
+//}
 
 float HarmonizerAudioProcessor::createHarmonies(float sample) {
     // will be based on midi notes passed in
@@ -239,50 +257,70 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new HarmonizerAudioProcessor();
 }
 
-void HarmonizerAudioProcessor::pushNextSampleIntoFFT (float sample) noexcept
-{
-    // if the fifo contains enough data, set a flag to say
-    // that the next frame should now be rendered..
-    if (fftIndex == fftSize)
-    {
-        if (!nextFFTBlockReady)
-        {
-            zeromem (fftData, sizeof (fftData));
-            memcpy (fftData, fftInput, sizeof (fftInput));
-            nextFFTBlockReady = true;
-        }
+//void HarmonizerAudioProcessor::pushNextSampleIntoYin(float sample) {
+//    if (yinIndex == yinSize) {
+//        if (!nextYINBlockReady) {
+////            cout << "The block is ready" << endl;
+//            yinReadyBuffer.makeCopyOf(yinBuffer);
+//            nextYINBlockReady = true;
+//        }
+//
+//        yinIndex = 0;
+//    }
+//    yinBuffer.getWritePointer(0)[yinIndex++] = sample; //twoOctaves.processSample(sample);
+//}
 
-        fftIndex = 0;
-    }
+//void HarmonizerAudioProcessor::pushNextSampleIntoFFT (float sample) noexcept
+//{
+//    // if the fifo contains enough data, set a flag to say
+//    // that the next frame should now be rendered..
+//    if (fftIndex == fftSize)
+//    {
+//        if (!nextFFTBlockReady)
+//        {
+//            zeromem (fftData, sizeof (fftData));
+//            memcpy (fftData, fftInput, sizeof (fftInput));
+//            nextFFTBlockReady = true;
+//        }
+//
+//        fftIndex = 0;
+//    }
+//
+//    fftInput[fftIndex++] = sample;
+//}
 
-    fftInput[fftIndex++] = sample;
-}
+//void HarmonizerAudioProcessor::timerCallback() {
+//    if (nextYINBlockReady) {
+//        findPitch();
+//        nextYINBlockReady = false;
+//    }
+////    if (nextFFTBlockReady)
+////    {
+//////        cout << "About to perform FFT" << endl;
+////        findPitch();
+////        nextFFTBlockReady = false;
+////    }
+//}
 
-void HarmonizerAudioProcessor::timerCallback() {
-    if (nextFFTBlockReady)
-    {
-//        cout << "About to perform FFT" << endl;
-        findPitch();
-        nextFFTBlockReady = false;
-    }
-}
-
-void HarmonizerAudioProcessor::findPitch() {
-    fft.performFrequencyOnlyForwardTransform(fftData);
-//    float pitch = 0.f;
-    int maxInx = distance(fftData, max_element(fftData, fftData + fftSize));
-    float frequency = ((maxInx * Fs)/fftSize);
-    cout << frequency << endl;
-    float pitch;
-    if(frequency == 0.f) {
-        pitch = 0.f;
-    } else {
-        pitch = 12 * log2(440.f/frequency);
-    }
-    
-    //get the dominant pitch
-    
-    //find nearest semitone and find the pitch difference
-    
-    correction.setPitch(pitch);
-}
+//void HarmonizerAudioProcessor::findPitch() {
+//    float frequency = yin.getPitchInHz(yinReadyBuffer.getReadPointer(0));
+//    fundamental = frequency;
+////    fft.performFrequencyOnlyForwardTransform(fftData);
+//////    float pitch = 0.f;
+////    int maxInx = distance(fftData, max_element(fftData, fftData + fftSize));
+////    float frequency = ((maxInx * Fs)/fftSize);
+////    cout << frequency << endl;
+//    float pitch;
+//    if(frequency < 50.f || frequency > 1500.f) {
+//        pitch = 0.f;
+//    } else {
+//        cout << frequency << endl;
+//        pitch = 12 * log2(130.81f/frequency);
+//    }
+//
+//    //get the dominant pitch
+//
+//    //find nearest semitone and find the pitch difference
+//
+//    correction.setPitch(pitch);
+//}

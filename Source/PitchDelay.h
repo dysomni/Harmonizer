@@ -14,26 +14,18 @@ using namespace std;
 class PitchDelay {
     
 public:
-    
-    // Constructor function (special function - no return type, name = Class name)
     PitchDelay(int phaseChoice);
-    
-    // Destructor
     ~PitchDelay();
     
     float processSample(float x, float& angle);
-
     void setFs(float Fs);
-    
     void setPitch(float semitone);
 
-    
 private:
-    
     float Fs = 48000.f;
     int phaseChoice;
     
-    const float MAX_DELAY_SEC = .03f;
+    const float MAX_DELAY_SEC = .1f;
     float MAX_DELAY_SAMPLES = MAX_DELAY_SEC * Fs;
     float delay;// = {5.f}; // in samples
     

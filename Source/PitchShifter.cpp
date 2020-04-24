@@ -65,8 +65,8 @@ void PitchShifter::calcAngleChange() {
     angleChange = freq * M2_PI / Fs;
 }
 
-float PitchShifter::calcGain(float angle) {
-    return 0.5f * sin(a3) + 0.5f;
+float PitchShifter::calcGain(float& angle) {
+    return 0.5f * sin(angle) + 0.5f;
 }
 
 void PitchShifter::validateAngleBounds(float& angle) {
