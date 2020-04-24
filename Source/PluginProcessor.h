@@ -14,26 +14,12 @@
 #include "PitchShifter.h"
 #include "MidiScheduler.h"
 #include "PitchYIN.h"
-//#include "PitchMPM.h"
-//#include "AppConfig.h"
-//#include <juce_core/juce_core.h>
-//#include <juce_audio_basics/juce_audio_basics.h>
-//#include "audio_fft/audio_fft.h"
 #include <float.h>
 #include <complex>
 #include <vector>
+#include "Note.h"
 
 //==============================================================================
-/**
-*/
-class Note {
-public:
-    bool on = false;
-    int num = 0;
-    Note(bool On, int Num) {
-        on = On; num = Num;
-    }
-};
 
 class HarmonizerAudioProcessor  : public AudioProcessor//,
                                   //public Timer
@@ -55,9 +41,6 @@ public:
     void processAudio(AudioBuffer<float>& buffer);
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
-    float getBothChannels(AudioBuffer<float>&, int numChannels, int n);
-    float getOneChannel(AudioBuffer<float>&, int channel, int n);
-    void writeBothChannels(AudioBuffer<float>&, float s1, float s2, int n);
     
 //    void pushNextSampleIntoFFT (float sample) noexcept;
 //    void pushNextSampleIntoYin(float sample);
@@ -104,7 +87,16 @@ public:
 //    };
 
 private:
+    int   Fs = 48000;
+    float inputSample;
+    
     MidiScheduler midiScheduler;
+    PitchShifter  harmonies[5] = {PitchShifter()};
+//    PitchShifter correction;
+    
+    float getBothChannels  (AudioBuffer<float>&, int numChannels,    int n);
+    float getOneChannel    (AudioBuffer<float>&, int channel,        int n);
+    void  writeBothChannels(AudioBuffer<float>&, float s1, float s2, int n);
     
 //    int yinSize = 8192;
 //    int yinIndex = 0;
@@ -112,22 +104,14 @@ private:
 //    AudioBuffer<float> yinReadyBuffer{1,8192};
 //    PitchYIN yin{8192};
 //    bool nextYINBlockReady = false;
-//
 //    float fundamental = 0;
     
-//    PitchShifter twoOctaves;
-//    PitchShifter correction;
-    PitchShifter harmonies[5] = {PitchShifter()};
 //    dsp::FFT fft;
-    
 //    float fftInput[fftSize];
 //    float fftData[2 * fftSize];
 //    int fftIndex = 0;
 //    bool nextFFTBlockReady = false;
-    int Fs = 48000;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HarmonizerAudioProcessor)
-    
-    float inputSample;
 };

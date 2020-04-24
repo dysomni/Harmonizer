@@ -29,78 +29,64 @@ HarmonizerAudioProcessorEditor::HarmonizerAudioProcessorEditor (HarmonizerAudioP
     dryWetSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 40);
     addAndMakeVisible(dryWetSlider);
     
-    for (int i = 0; i < 29; i++) {
-        KeyInfo* key = new KeyInfo((14*i) + 45, 105, 12, 28, false, Colours::aqua, Colours::white, true);
-        keys.push_back(key);
-    }
-    for (int i = 0; i < 28; i++) {
-        int mod = i % 7;
-        if ( mod == 2 || mod == 6 ) continue;
-        KeyInfo* key = new KeyInfo((14*i) + 53, 102, 11, 19, false, Colours::aqua, Colours::black, false);
-        keys.push_back(key);
-    }
-    sort(keys.begin(), keys.end(), keyCompare);
-    for (int i = 0; i < keys.size(); i++) {
-        cout << keys[i]->x << endl;
-    }
-    
+    createVectorOfKeys();
     startTimerHz(10);
     
     addAndMakeVisible(keyboardComponent);
 }
 
-HarmonizerAudioProcessorEditor::~HarmonizerAudioProcessorEditor()
-{
+HarmonizerAudioProcessorEditor::~HarmonizerAudioProcessorEditor(){}
+
+void HarmonizerAudioProcessorEditor::createVectorOfKeys() {
+    for (int i = 0; i < 29; i++) { // white keys
+        KeyInfo* key = new KeyInfo((14*i) + 45, 105, 12, 28, false, Colours::aqua, Colours::white, true);
+        keys.push_back(key);
+    }
+    for (int i = 0; i < 28; i++) { // black keys
+        int mod = i % 7;
+        if ( mod == 2 || mod == 6 ) continue;
+        KeyInfo* key = new KeyInfo((14*i) + 53, 102, 11, 19, false, Colours::aqua, Colours::black, false);
+        keys.push_back(key);
+    }
+    sort(keys.begin(), keys.end(), keyCompare); // sort them in order of appearence
 }
 
-//==============================================================================
-void HarmonizerAudioProcessorEditor::paint (Graphics& g)
-{
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
+void HarmonizerAudioProcessorEditor::paint (Graphics& g){
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     
-    Image background = ImageCache::getFromMemory(BinaryData::harmonizerlogo_png, BinaryData::harmonizerlogo_pngSize);
-    g.drawImageAt(background, 50, 50);
+    Image logo = ImageCache::getFromMemory(BinaryData::harmonizerlogo_png, BinaryData::harmonizerlogo_pngSize);
+    g.drawImageAt(logo, 50, 50);
 
-    for (int i = 0; i < keys.size(); i++) {
+    drawAllKeys(g);
+    
+    g.setColour(Colours::white);
+    g.setFont (20.0f);
+    g.drawFittedText("~ wetness ~", 100, 165, 300, 30, Justification::centred, 1);
+}
+
+void HarmonizerAudioProcessorEditor::drawAllKeys(Graphics& g) {
+    for (int i = 0; i < keys.size(); i++) { // draw white keys first
         if (keys[i]->white) {
             if (keys[i]->on) g.setColour(keys[i]->onColour);
             else g.setColour(keys[i]->offColour);
             g.fillRect(keys[i]->x, keys[i]->y, keys[i]->w, keys[i]->h);
         }
     }
-    for (int i = 0; i < keys.size(); i++) {
+    for (int i = 0; i < keys.size(); i++) { // draw black keys second (black are ontop)
         if (!keys[i]->white) {
             if (keys[i]->on) g.setColour(keys[i]->onColour);
             else g.setColour(keys[i]->offColour);
             g.fillRect(keys[i]->x, keys[i]->y, keys[i]->w, keys[i]->h);
         }
     }
-
-    g.setColour(Colours::white);
-    g.setFont (20.0f);
-    g.drawFittedText("~ wetness ~", 100, 165, 300, 30, Justification::centred, 1);
 }
 
-void HarmonizerAudioProcessorEditor::resized()
-{
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-}
-
-void HarmonizerAudioProcessorEditor::changeMidiDisplay(String input) {
-    currentMidiLabel.setText(input, NotificationType::dontSendNotification);
-}
+void HarmonizerAudioProcessorEditor::resized(){}
 
 void HarmonizerAudioProcessorEditor::sliderValueChanged(Slider* slider) {
     if(slider == &dryWetSlider) processor.dryWetValue = dryWetSlider.getValue();
-    if(slider == &attackSlider) processor.attackValue = attackSlider.getValue();
 }
 
 void HarmonizerAudioProcessorEditor::timerCallback() {
     keyboardComponent.repaint();
 }
-
-//void HarmonizerAudioProcessorEditor::audioProcessorChanged(AudioProcessor * processor) {
-//
-//}
