@@ -20,10 +20,17 @@ public:
     ~PitchShifter();
     
     float processSample(float x);
+    float kindaProcessSample(float x);
     void setFs(float Fs);
     void setPitch(float semitone);
+    void actualSetPitch(float semitone);
+    void validateChange(bool on);
 
 private:
+    float changeGain    = 0.f;
+    float pitchBuffer   = 0.f;
+    float changeGainInc = 0.f;
+    float GAIN_CHANGE_SPEED = 0.05f;
     
     const float M2_PI = 2.f * M_PI;
     

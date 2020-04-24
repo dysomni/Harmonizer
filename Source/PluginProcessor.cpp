@@ -221,6 +221,8 @@ float HarmonizerAudioProcessor::createHarmonies(float sample) {
         if(midiScheduler.getHarmonyInfo(i)[1] == 0) {
             count++;
             output += harmonies[i].processSample(sample);
+        } else {
+            output += harmonies[i].kindaProcessSample(sample);
         }
     }
     return output;// / (float)count;
