@@ -19,14 +19,14 @@ HarmonizerAudioProcessorEditor::HarmonizerAudioProcessorEditor (HarmonizerAudioP
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (500, 400);
+    setSize (500, 275);
     
     dryWetSlider.addListener(this);
-    dryWetSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-    dryWetSlider.setBounds(200,200,125,125);
+    dryWetSlider.setSliderStyle(Slider::LinearHorizontal);
+    dryWetSlider.setBounds(100,200,300,30);
     dryWetSlider.setRange(0.0f,1.0f);
     dryWetSlider.setValue(processor.dryWetValue);
-    dryWetSlider.setTextBoxStyle(Slider::TextBoxRight, false, 70, 30);
+    dryWetSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 40);
     addAndMakeVisible(dryWetSlider);
     
     for (int i = 0; i < 29; i++) {
@@ -47,9 +47,6 @@ HarmonizerAudioProcessorEditor::HarmonizerAudioProcessorEditor (HarmonizerAudioP
     startTimerHz(10);
     
     addAndMakeVisible(keyboardComponent);
-
-    
-//    processor.addListener(this);
 }
 
 HarmonizerAudioProcessorEditor::~HarmonizerAudioProcessorEditor()
@@ -82,7 +79,7 @@ void HarmonizerAudioProcessorEditor::paint (Graphics& g)
 
     g.setColour(Colours::white);
     g.setFont (20.0f);
-    g.drawFittedText("WETNESS", 90, 200, 60, 30, Justification::left, 1);
+    g.drawFittedText("~ wetness ~", 100, 165, 300, 30, Justification::centred, 1);
 }
 
 void HarmonizerAudioProcessorEditor::resized()
@@ -96,15 +93,8 @@ void HarmonizerAudioProcessorEditor::changeMidiDisplay(String input) {
 }
 
 void HarmonizerAudioProcessorEditor::sliderValueChanged(Slider* slider) {
-    
-    if(slider == &dryWetSlider) {
-        processor.dryWetValue = dryWetSlider.getValue();
-    }
-    
-    if(slider == &attackSlider) {
-        processor.attackValue = attackSlider.getValue();
-    }
-    
+    if(slider == &dryWetSlider) processor.dryWetValue = dryWetSlider.getValue();
+    if(slider == &attackSlider) processor.attackValue = attackSlider.getValue();
 }
 
 void HarmonizerAudioProcessorEditor::timerCallback() {

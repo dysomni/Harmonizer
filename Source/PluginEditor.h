@@ -47,6 +47,9 @@ public:
     void drawKeys(Graphics& g) {
         for (int i = 0; i < processor.notes.size(); i++) {
             int num = processor.notes[i]->num;
+            if (num >= keys.size()) continue;
+            
+            cout << num << endl;
             keys[num]->on = processor.notes[i]->on;
             if (keys[num]->white) {
                 drawKey(keys[num], g);
@@ -56,7 +59,6 @@ public:
                 drawKey(keys[num], g);
             }
         }
-        cout << processor.notes.size() << endl;
         processor.notes.clear();
     }
     
@@ -75,7 +77,7 @@ public:
     
     KeyboardComponent(HarmonizerAudioProcessor& processor, std::vector<KeyInfo*>& keys, std::vector<Note*>& notes) : processor(processor), keys(keys), notes(notes) {
 //        setOpaque(true);
-        setSize(500,400);
+        setSize(500,133);
     }
 };
 
