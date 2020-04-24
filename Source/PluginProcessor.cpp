@@ -104,8 +104,6 @@ void HarmonizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
 {
     Fs = sampleRate;
 //    correction.setFs(sampleRate);
-//    twoOctaves.setFs(sampleRate);
-//    twoOctaves.setPitch(24.f);
 //    yin.setSampleRate((unsigned int) sampleRate);
 //    correction.setShift(0.25f);
     for(int i = 0; i < 5; i++) {
@@ -144,8 +142,7 @@ bool HarmonizerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 }
 #endif
 
-void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
-{
+void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) {
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -155,7 +152,6 @@ void HarmonizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     
     processMidi(midiMessages);
     processAudio(buffer);
-
 }
 
 void HarmonizerAudioProcessor::processMidi(MidiBuffer& midiMessages) {
@@ -163,22 +159,20 @@ void HarmonizerAudioProcessor::processMidi(MidiBuffer& midiMessages) {
     
     MidiBuffer::Iterator midiIterator = MidiBuffer::Iterator(midiMessages);
     while(midiIterator.getNextEvent(midiMessage, midiSample)) {
-        if      (midiMessage.isNoteOn())  {
-            midiScheduler.noteOn(midiMessage.getNoteNumber());
+        if (midiMessage.isNoteOn()) {
+            midiScheduler.noteOn(midiMessage.getNoteNumber()); // register change for pitch shifters
             Note* note = new Note(true, midiMessage.getNoteNumber());
-            notes.push_back(note);
+            notes.push_back(note); // register change for GUI
         }
         else if (midiMessage.isNoteOff()) {
-            midiScheduler.noteOff(midiMessage.getNoteNumber());
+            midiScheduler.noteOff(midiMessage.getNoteNumber()); // pitch shifters
             Note* note = new Note(false, midiMessage.getNoteNumber());
-            notes.push_back(note);
+            notes.push_back(note); // GUI
         }
     }
 }
 
 void HarmonizerAudioProcessor::processAudio(AudioBuffer<float>& buffer) {
-    
-    
     float inputSample; //float tunedSample;
     for (int sampleNumber = 0; sampleNumber < buffer.getNumSamples(); sampleNumber++) {
         inputSample = getBothChannels(buffer, buffer.getNumChannels(), sampleNumber);
@@ -229,7 +223,6 @@ float HarmonizerAudioProcessor::createHarmonies(float sample) {
             output += harmonies[i].processSample(sample);
         }
     }
-    
     return output;// / (float)count;
 }
 

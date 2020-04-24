@@ -19,6 +19,10 @@
       <FILE id="GBKM8h" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="wapKr0" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="pjdqkL" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
+      <FILE id="Amu4Yw" name="KeyInfo.h" compile="0" resource="0" file="Source/KeyInfo.h"/>
+      <FILE id="IEDkYM" name="KeyboardComponent.h" compile="0" resource="0"
+            file="Source/KeyboardComponent.h"/>
       <FILE id="ZBMDjm" name="PitchYIN.h" compile="0" resource="0" file="Source/PitchYIN.h"/>
       <FILE id="DI7wHH" name="PitchMPM.h" compile="0" resource="0" file="Source/PitchMPM.h"/>
       <GROUP id="{175342C0-40CA-4A7C-F14A-CAF5A50FFAA9}" name="audio_fft">
