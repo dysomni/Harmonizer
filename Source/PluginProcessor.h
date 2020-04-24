@@ -21,10 +21,20 @@
 //#include "audio_fft/audio_fft.h"
 #include <float.h>
 #include <complex>
+#include <vector>
 
 //==============================================================================
 /**
 */
+class Note {
+public:
+    bool on = false;
+    int num = 0;
+    Note(bool On, int Num) {
+        on = On; num = Num;
+    }
+};
+
 class HarmonizerAudioProcessor  : public AudioProcessor//,
                                   //public Timer
 {
@@ -83,6 +93,8 @@ public:
     
     float dryWetValue = 0.5f;
     float attackValue = 1.0f;
+    
+    std::vector<Note*> notes;
     
 //    bool wantTuned = true;
     

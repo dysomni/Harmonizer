@@ -163,8 +163,16 @@ void HarmonizerAudioProcessor::processMidi(MidiBuffer& midiMessages) {
     
     MidiBuffer::Iterator midiIterator = MidiBuffer::Iterator(midiMessages);
     while(midiIterator.getNextEvent(midiMessage, midiSample)) {
-        if      (midiMessage.isNoteOn())  midiScheduler.noteOn(midiMessage.getNoteNumber());
-        else if (midiMessage.isNoteOff()) midiScheduler.noteOff(midiMessage.getNoteNumber());
+        if      (midiMessage.isNoteOn())  {
+            midiScheduler.noteOn(midiMessage.getNoteNumber());
+            Note* note = new Note(true, midiMessage.getNoteNumber());
+            notes.push_back(note);
+        }
+        else if (midiMessage.isNoteOff()) {
+            midiScheduler.noteOff(midiMessage.getNoteNumber());
+            Note* note = new Note(false, midiMessage.getNoteNumber());
+            notes.push_back(note);
+        }
     }
 }
 
