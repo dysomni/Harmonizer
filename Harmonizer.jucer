@@ -19,6 +19,23 @@
       <FILE id="GBKM8h" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="wapKr0" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="ZBMDjm" name="PitchYIN.h" compile="0" resource="0" file="Source/PitchYIN.h"/>
+      <FILE id="DI7wHH" name="PitchMPM.h" compile="0" resource="0" file="Source/PitchMPM.h"/>
+      <GROUP id="{499E9A2B-C10F-B508-9865-904C5A428296}" name="audio_fft">
+        <GROUP id="{70397C4E-BE30-63E7-ED65-21F3C1B1DDD4}" name="AudioFFT">
+          <GROUP id="{B200ADA6-810C-6E51-5E34-94E3E2B94D92}" name="test">
+            <FILE id="PRE2u8" name="Test.cpp" compile="1" resource="0" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/AudioFFT/test/Test.cpp"/>
+          </GROUP>
+          <FILE id="VQIGSG" name="AudioFFT.cpp" compile="1" resource="0" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/AudioFFT/AudioFFT.cpp"/>
+          <FILE id="F2wsjT" name="AudioFFT.h" compile="0" resource="0" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/AudioFFT/AudioFFT.h"/>
+          <FILE id="vurAcR" name="COPYING.txt" compile="0" resource="1" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/AudioFFT/COPYING.txt"/>
+          <FILE id="Ou2Gf8" name="README.md" compile="0" resource="1" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/AudioFFT/README.md"/>
+        </GROUP>
+        <FILE id="XiezhP" name="audio_fft.cpp" compile="1" resource="0" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/audio_fft.cpp"/>
+        <FILE id="BTErWm" name="audio_fft.h" compile="0" resource="0" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/audio_fft.h"/>
+        <FILE id="YmGUBY" name="audio_fft.mm" compile="1" resource="0" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/audio_fft.mm"/>
+        <FILE id="oJaYnG" name="README.md" compile="0" resource="1" file="../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/audio_fft-master/README.md"/>
+      </GROUP>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

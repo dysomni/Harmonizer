@@ -13,6 +13,7 @@
 #include <array>
 #include <vector>
 #include <chrono>
+#include <iostream>
 using namespace std;
 
 class MidiScheduler {
@@ -35,12 +36,13 @@ public:
     int oldest() {
         int indx;
         auto now = std::chrono::steady_clock::now();
-        int oldest = 0;
+        uint64_t oldest = 0;
         for(int i = 0; i < 5; i++) {
             if(!infos[i].empty) {
-                int amount = (int)chrono::duration_cast<chrono::nanoseconds> (now - infos[i].time).count();
+                uint64_t amount = (uint64_t)chrono::duration_cast<chrono::nanoseconds> (now - infos[i].time).count();
                 if (amount > oldest) {
                     indx = i;
+                    oldest = amount;
                 }
             }
         }
@@ -57,16 +59,20 @@ public:
             insertIndex = emptys[0];
         }
         infos[insertIndex].time = std::chrono::steady_clock::now();
-        infos[insertIndex].note = note;
+        infos[insertIndex].note = theNote(note);
         infos[insertIndex].empty = false;
     }
     
     void noteOff(int note) {
         for(int i = 0; i < 5; i++) {
-            if(infos[i].note == note) {
+            if(infos[i].note == theNote(note) ) {
                 infos[i].empty = true;
             }
         }
+    }
+    
+    int theNote(int noteIn) {
+        return noteIn - 24;
     }
     
     vector<int> getHarmonyInfo(int indx) {

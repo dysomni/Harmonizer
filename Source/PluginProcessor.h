@@ -11,14 +11,22 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "PitchDelay.h"
+#include "PitchShifter.h"
 #include "MidiScheduler.h"
+#include "PitchYIN.h"
+//#include "PitchMPM.h"
+//#include "AppConfig.h"
+//#include <juce_core/juce_core.h>
+//#include <juce_audio_basics/juce_audio_basics.h>
+//#include "audio_fft/audio_fft.h"
+#include <float.h>
+#include <complex>
 
 //==============================================================================
 /**
 */
-class HarmonizerAudioProcessor  : public AudioProcessor,
-                                  public Timer
+class HarmonizerAudioProcessor  : public AudioProcessor//,
+                                  //public Timer
 {
 public:
     //==============================================================================
@@ -32,16 +40,20 @@ public:
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
+    
+    void processMidi(MidiBuffer& midiMessages);
+    void processAudio(AudioBuffer<float>& buffer);
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
     float getBothChannels(AudioBuffer<float>&, int numChannels, int n);
     float getOneChannel(AudioBuffer<float>&, int channel, int n);
     void writeBothChannels(AudioBuffer<float>&, float s1, float s2, int n);
     
-    void pushNextSampleIntoFFT (float sample) noexcept;
-    void findPitch();
+//    void pushNextSampleIntoFFT (float sample) noexcept;
+//    void pushNextSampleIntoYin(float sample);
+//    void findPitch();
     
-    float tuneSample(float sample);
+//    float tuneSample(float sample);
     float createHarmonies(float sample);
 
     //==============================================================================
@@ -63,7 +75,7 @@ public:
     const String getProgramName (int index) override;
     void changeProgramName (int index, const String& newName) override;
     
-    void timerCallback() override;
+//    void timerCallback() override;
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
@@ -72,24 +84,34 @@ public:
     float dryWetValue = 0.5f;
     float attackValue = 1.0f;
     
-    enum {
-        fftOrder = 12,
-        fftSize = 1 << fftOrder
-    };
+//    bool wantTuned = true;
     
-//    ChangeBroadcaster midiBroadcaster;
+//    enum {
+//        fftOrder = 12,
+//        fftSize = 1 << fftOrder
+//    };
 
 private:
     MidiScheduler midiScheduler;
     
-    PitchDelay correction;
-    PitchDelay harmonies[5] = {PitchDelay()};
-    dsp::FFT fft;
+//    int yinSize = 8192;
+//    int yinIndex = 0;
+//    AudioBuffer<float> yinBuffer{1,8192};
+//    AudioBuffer<float> yinReadyBuffer{1,8192};
+//    PitchYIN yin{8192};
+//    bool nextYINBlockReady = false;
+//
+//    float fundamental = 0;
     
-    float fftInput[fftSize];
-    float fftData[2 * fftSize];
-    int fftIndex = 0;
-    bool nextFFTBlockReady = false;
+//    PitchShifter twoOctaves;
+//    PitchShifter correction;
+    PitchShifter harmonies[5] = {PitchShifter()};
+//    dsp::FFT fft;
+    
+//    float fftInput[fftSize];
+//    float fftData[2 * fftSize];
+//    int fftIndex = 0;
+//    bool nextFFTBlockReady = false;
     int Fs = 48000;
 
     //==============================================================================

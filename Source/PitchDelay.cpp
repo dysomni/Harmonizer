@@ -26,7 +26,7 @@ float PitchDelay::processSample(float x, float& angle){
 
 void PitchDelay::setFs(float Fs){
     this->Fs = Fs;
-    this->MAX_DELAY_SAMPLES = MAX_DELAY_SEC * Fs;
+    MAX_DELAY_SAMPLES = MAX_DELAY_SEC * Fs;
     calcDelay();
 }
 
