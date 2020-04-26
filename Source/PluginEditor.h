@@ -23,7 +23,6 @@ using namespace std;
 //==============================================================================
 
 class HarmonizerAudioProcessorEditor  : public AudioProcessorEditor,
-                                        public Slider::Listener,
                                         public Timer
 {
 public:
@@ -33,14 +32,15 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-    void sliderValueChanged(Slider* slider) override;
     void timerCallback() override;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     HarmonizerAudioProcessor& processor;
-    Slider dryWetSlider;
+    Slider wetnessSlider;
+    
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> sliderAttachment;
     
     std::vector<KeyInfo*> keys;
     KeyboardComponent keyboardComponent{processor, keys, processor.notes};

@@ -24,7 +24,7 @@ HarmonizerAudioProcessor::HarmonizerAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), state(*this, nullptr, Identifier("HarmonizerParameters"), createParameterLayout())
 //,
 //    fft(fftOrder)
 #endif
@@ -35,6 +35,12 @@ HarmonizerAudioProcessor::HarmonizerAudioProcessor()
 
 HarmonizerAudioProcessor::~HarmonizerAudioProcessor()
 {
+}
+
+AudioProcessorValueTreeState::ParameterLayout HarmonizerAudioProcessor::createParameterLayout() {
+    std::vector<std::unique_ptr<RangedAudioParameter>> params;
+    params.push_back(std::make_unique<AudioParameterFloat>("WETNESS", "Wetness", 0.f, 1.f, 0.5f));
+    return {params.begin(), params.end()};
 }
 
 //==============================================================================
@@ -174,6 +180,7 @@ void HarmonizerAudioProcessor::processMidi(MidiBuffer& midiMessages) {
 
 void HarmonizerAudioProcessor::processAudio(AudioBuffer<float>& buffer) {
     float inputSample; //float tunedSample;
+    float wetnessValue = *state.getRawParameterValue("WETNESS");
     for (int sampleNumber = 0; sampleNumber < buffer.getNumSamples(); sampleNumber++) {
         inputSample = getBothChannels(buffer, buffer.getNumChannels(), sampleNumber);
 //        pushNextSampleIntoFFT(inputSample);
@@ -186,7 +193,7 @@ void HarmonizerAudioProcessor::processAudio(AudioBuffer<float>& buffer) {
 //        else {
 //            inputSample = ((1.f - dryWetValue) * inputSample) + (dryWetValue * createHarmonies(tunedSample));
 //        }
-        inputSample = ((1.f - dryWetValue) * inputSample) + (dryWetValue * createHarmonies(inputSample));
+        inputSample = ((1.f - wetnessValue) * inputSample) + (wetnessValue * createHarmonies(inputSample));
         writeBothChannels(buffer, inputSample, inputSample, sampleNumber);
     }
 }
@@ -242,15 +249,17 @@ AudioProcessorEditor* HarmonizerAudioProcessor::createEditor()
 //==============================================================================
 void HarmonizerAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto currentState = state.copyState();
+    std::unique_ptr<XmlElement> xml(currentState.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void HarmonizerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+    if (xmlState && xmlState->hasTagName(state.state.getType()))
+        state.replaceState(ValueTree::fromXml(*xmlState));
+    
 }
 
 //==============================================================================
