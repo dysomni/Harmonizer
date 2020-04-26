@@ -21,13 +21,13 @@ HarmonizerAudioProcessorEditor::HarmonizerAudioProcessorEditor (HarmonizerAudioP
     // editor's size to whatever you need it to be.
     setSize (500, 275);
     
-    dryWetSlider.addListener(this);
-    dryWetSlider.setSliderStyle(Slider::LinearHorizontal);
-    dryWetSlider.setBounds(100,200,300,30);
-    dryWetSlider.setRange(0.0f,1.0f);
-    dryWetSlider.setValue(processor.dryWetValue);
-    dryWetSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 40);
-    addAndMakeVisible(dryWetSlider);
+    wetnessSlider.setSliderStyle(Slider::LinearHorizontal);
+    wetnessSlider.setBounds(100,200,300,30);
+    wetnessSlider.setRange(0.0f,1.0f);
+    wetnessSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 40);
+    addAndMakeVisible(wetnessSlider);
+    
+    sliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.state, "WETNESS", wetnessSlider);
     
     createVectorOfKeys();
     startTimerHz(10);
@@ -82,10 +82,6 @@ void HarmonizerAudioProcessorEditor::drawAllKeys(Graphics& g) {
 }
 
 void HarmonizerAudioProcessorEditor::resized(){}
-
-void HarmonizerAudioProcessorEditor::sliderValueChanged(Slider* slider) {
-    if(slider == &dryWetSlider) processor.dryWetValue = dryWetSlider.getValue();
-}
 
 void HarmonizerAudioProcessorEditor::timerCallback() {
     keyboardComponent.repaint();

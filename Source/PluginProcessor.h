@@ -74,9 +74,6 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    float dryWetValue = 0.5f;
-    float attackValue = 1.0f;
-    
     std::vector<Note*> notes;
     
 //    bool wantTuned = true;
@@ -85,6 +82,9 @@ public:
 //        fftOrder = 12,
 //        fftSize = 1 << fftOrder
 //    };
+    
+    AudioProcessorValueTreeState state;
+    AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
 private:
     int   Fs = 48000;
